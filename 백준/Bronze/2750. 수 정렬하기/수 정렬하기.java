@@ -12,7 +12,7 @@ class Main{
         for(int i = 0; i < n; i++){
             arr.add(Integer.parseInt(br.readLine()));
         }
-        Collections.sort(arr);
+        arr.sort(Comparator.naturalOrder());
         
         for(Integer a : arr){
             bw.write(a+"");
