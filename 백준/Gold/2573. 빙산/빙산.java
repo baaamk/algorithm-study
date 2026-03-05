@@ -52,9 +52,7 @@ class Main {
             bw.close();
             return;
         }
-        for (int i = 0; i < n; i++) {
-            temp[i] = board[i].clone();
-        }
+        temp = new int[n][m];
         for(int i = 0; i < n; i++){
             for(int j = 0; j < m; j++){
                 if(board[i][j] != 0){
@@ -68,14 +66,8 @@ class Main {
                         }
                     }
                     int newResult = board[i][j] - zero;
-                    if(newResult < 0){
-                        temp[i][j] = 0;
-                    } else {
-                        temp[i][j] = newResult;
-                    }
+                    temp[i][j] = Math.max(0, newResult);
                 }
-                    
-                
             }
         }
         for (int i = 0; i < n; i++) {
