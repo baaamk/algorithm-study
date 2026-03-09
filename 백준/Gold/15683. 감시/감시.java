@@ -1,124 +1,133 @@
 import java.io.*;
 import java.util.*;
 
-class Main {
+public class Main {
+
     static int n, m;
-    static int[][] board;
-    static int[][] watched;
-    static List<int[]> cctvs = new ArrayList<>();
-    static int min = Integer.MAX_VALUE;
+    static int[][] board1 = new int[10][10];
+    static int[][] board2 = new int[10][10];
 
-    static int[] dr = {-1, 0, 1, 0}; // 상 우 하 좌
-    static int[] dc = {0, 1, 0, -1};
+    static int[] dx = {1, 0, -1, 0}; // 남 동 북 서
+    static int[] dy = {0, 1, 0, -1};
 
-    public static void main(String[] args) throws IOException {
+    static List<int[]> cctv = new ArrayList<>();
+
+    static boolean OOB(int x, int y) {
+        return x < 0 || x >= n || y < 0 || y >= m;
+    }
+
+    // 감시선 뻗기
+    static void upd(int x, int y, int dir) {
+        dir %= 4;
+
+        while (true) {
+            x += dx[dir];
+            y += dy[dir];
+
+            if (OOB(x, y) || board2[x][y] == 6) {
+                return;
+            }
+
+            if (board2[x][y] != 0) {
+                continue;
+            }
+
+            board2[x][y] = 7;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
 
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
 
-        board = new int[n][m];
-        watched = new int[n][m];
+        int mn = 0;
 
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
+
             for (int j = 0; j < m; j++) {
-                board[i][j] = Integer.parseInt(st.nextToken());
-                if (board[i][j] >= 1 && board[i][j] <= 5) {
-                    cctvs.add(new int[]{i, j});
+
+                board1[i][j] = Integer.parseInt(st.nextToken());
+
+                if (board1[i][j] != 0 && board1[i][j] != 6) {
+                    cctv.add(new int[]{i, j});
+                }
+
+                if (board1[i][j] == 0) {
+                    mn++;
                 }
             }
         }
 
-        backTrack(0);
+        int totalCase = 1 << (2 * cctv.size()); // 4^cctv
 
-        System.out.println(min);
-    }
+        for (int tmp = 0; tmp < totalCase; tmp++) {
 
-    static void backTrack(int depth) {
-        if (depth == cctvs.size()) {
-            min = Math.min(min, countBlindSpot());
-            return;
-        }
-
-        int[] cur = cctvs.get(depth);
-        int r = cur[0];
-        int c = cur[1];
-        int type = board[r][c];
-
-        if (type == 1) {
-            for (int d = 0; d < 4; d++) {
-                watch(r, c, d, 1);
-                backTrack(depth + 1);
-                watch(r, c, d, -1);
-            }
-        } else if (type == 2) {
-            for (int d = 0; d < 2; d++) {
-                watch(r, c, d, 1);
-                watch(r, c, d + 2, 1);
-                backTrack(depth + 1);
-                watch(r, c, d, -1);
-                watch(r, c, d + 2, -1);
-            }
-        } else if (type == 3) {
-            for (int d = 0; d < 4; d++) {
-                watch(r, c, d, 1);
-                watch(r, c, (d + 1) % 4, 1);
-                backTrack(depth + 1);
-                watch(r, c, d, -1);
-                watch(r, c, (d + 1) % 4, -1);
-            }
-        } else if (type == 4) {
-            for (int d = 0; d < 4; d++) {
-                watch(r, c, d, 1);
-                watch(r, c, (d + 1) % 4, 1);
-                watch(r, c, (d + 2) % 4, 1);
-                backTrack(depth + 1);
-                watch(r, c, d, -1);
-                watch(r, c, (d + 1) % 4, -1);
-                watch(r, c, (d + 2) % 4, -1);
-            }
-        } else if (type == 5) {
-            for (int d = 0; d < 4; d++) {
-                watch(r, c, d, 1);
-            }
-            backTrack(depth + 1);
-            for (int d = 0; d < 4; d++) {
-                watch(r, c, d, -1);
-            }
-        }
-    }
-
-    static void watch(int r, int c, int dir, int delta) {
-        int nr = r + dr[dir];
-        int nc = c + dc[dir];
-
-        while (nr >= 0 && nr < n && nc >= 0 && nc < m) {
-            if (board[nr][nc] == 6) {
-                break;
-            }
-
-            if (board[nr][nc] == 0) {
-                watched[nr][nc] += delta;
-            }
-
-            nr += dr[dir];
-            nc += dc[dir];
-        }
-    }
-
-    static int countBlindSpot() {
-        int count = 0;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (board[i][j] == 0 && watched[i][j] == 0) {
-                    count++;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < m; j++) {
+                    board2[i][j] = board1[i][j];
                 }
             }
+
+            int brute = tmp;
+
+            for (int i = 0; i < cctv.size(); i++) {
+
+                int dir = brute % 4;
+                brute /= 4;
+
+                int x = cctv.get(i)[0];
+                int y = cctv.get(i)[1];
+
+                int type = board1[x][y];
+
+                if (type == 1) {
+                    upd(x, y, dir);
+                }
+
+                else if (type == 2) {
+                    upd(x, y, dir);
+                    upd(x, y, dir + 2);
+                }
+
+                else if (type == 3) {
+                    upd(x, y, dir);
+                    upd(x, y, dir + 1);
+                }
+
+                else if (type == 4) {
+                    upd(x, y, dir);
+                    upd(x, y, dir + 1);
+                    upd(x, y, dir + 2);
+                }
+
+                else if (type == 5) {
+                    upd(x, y, dir);
+                    upd(x, y, dir + 1);
+                    upd(x, y, dir + 2);
+                    upd(x, y, dir + 3);
+                }
+            }
+
+            int val = 0;
+
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < m; j++) {
+                    if (board2[i][j] == 0) {
+                        val++;
+                    }
+                }
+            }
+
+            mn = Math.min(mn, val);
         }
 
-        return count;
+        System.out.println(mn);
     }
 }
