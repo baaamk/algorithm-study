@@ -1,203 +1,124 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 class Main {
-    static int n,m;
+    static int n, m;
     static int[][] board;
-    static boolean[][] visit;
-    static boolean[][] temp;
-    
+    static int[][] watched;
+    static List<int[]> cctvs = new ArrayList<>();
     static int min = Integer.MAX_VALUE;
-    static List<int[]> list = new ArrayList<>();
-    public static void main(String[] args) throws IOException{
+
+    static int[] dr = {-1, 0, 1, 0}; // 상 우 하 좌
+    static int[] dc = {0, 1, 0, -1};
+
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringTokenizer st;
-        
-        st = new StringTokenizer(br.readLine());
-        
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        
+
         board = new int[n][m];
-        visit = new boolean[n][m];
-        
-        for(int i = 0; i < n; i++){
+        watched = new int[n][m];
+
+        for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
-            
-            for(int j = 0; j < m; j++){
+            for (int j = 0; j < m; j++) {
                 board[i][j] = Integer.parseInt(st.nextToken());
-                if(board[i][j] != 0 && board[i][j] != 6){
-                    list.add(new int[]{i,j});
+                if (board[i][j] >= 1 && board[i][j] <= 5) {
+                    cctvs.add(new int[]{i, j});
                 }
             }
         }
-        
+
         backTrack(0);
-        bw.write(min + "");
-        bw.flush();
-        bw.close();
+
+        System.out.println(min);
     }
-    
-    static void backTrack(int depth){
-        if(depth == list.size()){
-            int count = 0;
-            for(int i = 0; i < n; i++){
-                for(int j = 0; j < m; j++){
-                    if(board[i][j] == 0 && !visit[i][j]){
-                        count++;
-                    }
-                }
+
+    static void backTrack(int depth) {
+        if (depth == cctvs.size()) {
+            min = Math.min(min, countBlindSpot());
+            return;
+        }
+
+        int[] cur = cctvs.get(depth);
+        int r = cur[0];
+        int c = cur[1];
+        int type = board[r][c];
+
+        if (type == 1) {
+            for (int d = 0; d < 4; d++) {
+                watch(r, c, d, 1);
+                backTrack(depth + 1);
+                watch(r, c, d, -1);
             }
-            min = Math.min(min, count);
-            return;
-        }
-        
-        
-            int[] cur = list.get(depth);
-            int cr = cur[0];
-            int cc = cur[1];
-            
-            if(board[cr][cc] == 5){
-                boolean[][] temp = copyArray(visit);
-                moveRight(cr,cc);
-                moveLeft(cr,cc);
-                moveUp(cr,cc);
-                moveDown(cr,cc);
+        } else if (type == 2) {
+            for (int d = 0; d < 2; d++) {
+                watch(r, c, d, 1);
+                watch(r, c, d + 2, 1);
                 backTrack(depth + 1);
-                visit = temp;
-            } else if(board[cr][cc] == 2){
-                boolean[][] temp = copyArray(visit);
-                moveUp(cr,cc);
-                moveDown(cr,cc);
-                backTrack(depth + 1);
-                visit = temp;
-                
-                temp = copyArray(visit);
-                moveLeft(cr,cc);
-                moveRight(cr,cc);
-                backTrack(depth + 1);
-                visit = temp;
-            } else if(board[cr][cc] == 3){
-                for(int j = 0; j < 4; j++){
-                    boolean[][] temp = copyArray(visit);
-                    if(j == 0){
-                        moveUp(cr,cc);
-                        moveRight(cr,cc);
-                        backTrack(depth + 1); 
-                    } else if (j == 1){
-                        moveRight(cr,cc);
-                        moveDown(cr,cc);
-                        backTrack(depth + 1); 
-                    } else if (j == 2){
-                        moveDown(cr,cc);
-                        moveLeft(cr,cc);
-                        backTrack(depth + 1); 
-                    } else {
-                        moveLeft(cr,cc);
-                        moveUp(cr,cc);
-                        backTrack(depth + 1); 
-                    }
-                    visit = temp;
-                }
-            } else if(board[cr][cc] == 4){
-                for(int j = 0; j < 4; j++){
-                    boolean[][] temp = copyArray(visit);
-                    if(j == 0){
-                        moveUp(cr,cc);
-                        moveRight(cr,cc);
-                        moveLeft(cr,cc);
-                        backTrack(depth + 1); 
-                    } else if (j == 1){
-                        moveUp(cr,cc);
-                        moveRight(cr,cc);
-                        moveDown(cr,cc);
-                        backTrack(depth + 1); 
-                    } else if (j == 2){
-                        moveDown(cr,cc);
-                        moveRight(cr,cc);
-                        moveLeft(cr,cc);
-                        backTrack(depth + 1); 
-                    } else {
-                        moveLeft(cr,cc);
-                        moveUp(cr,cc);
-                        moveDown(cr,cc);
-                        backTrack(depth + 1); 
-                    }
-                    visit = temp;
-                }
-            } else if(board[cr][cc] == 1){
-                for(int j = 0; j < 4; j++){
-                    boolean[][] temp = copyArray(visit);
-                    if(j == 0){
-                        moveUp(cr,cc);
-                        backTrack(depth + 1); 
-                    } else if (j == 1){
-                        moveRight(cr,cc);
-                        backTrack(depth + 1); 
-                    } else if (j == 2){
-                        moveDown(cr,cc);
-                        backTrack(depth + 1); 
-                    } else {
-                        moveLeft(cr,cc);
-                        backTrack(depth + 1); 
-                    }
-                    visit = temp;
-                }
+                watch(r, c, d, -1);
+                watch(r, c, d + 2, -1);
             }
-        
-    }
-    
-    
-    
-    static void moveRight(int r, int c){
-        if(c >= m){
-            return;
-        } else if (board[r][c] == 6){
-            return;
+        } else if (type == 3) {
+            for (int d = 0; d < 4; d++) {
+                watch(r, c, d, 1);
+                watch(r, c, (d + 1) % 4, 1);
+                backTrack(depth + 1);
+                watch(r, c, d, -1);
+                watch(r, c, (d + 1) % 4, -1);
+            }
+        } else if (type == 4) {
+            for (int d = 0; d < 4; d++) {
+                watch(r, c, d, 1);
+                watch(r, c, (d + 1) % 4, 1);
+                watch(r, c, (d + 2) % 4, 1);
+                backTrack(depth + 1);
+                watch(r, c, d, -1);
+                watch(r, c, (d + 1) % 4, -1);
+                watch(r, c, (d + 2) % 4, -1);
+            }
+        } else if (type == 5) {
+            for (int d = 0; d < 4; d++) {
+                watch(r, c, d, 1);
+            }
+            backTrack(depth + 1);
+            for (int d = 0; d < 4; d++) {
+                watch(r, c, d, -1);
+            }
         }
-        visit[r][c] = true;
-        moveRight(r, c + 1);
     }
-    static void moveLeft(int r, int c){
-        if(c < 0){
-            return;
-        } else if (board[r][c] == 6){
 
-            return;
+    static void watch(int r, int c, int dir, int delta) {
+        int nr = r + dr[dir];
+        int nc = c + dc[dir];
+
+        while (nr >= 0 && nr < n && nc >= 0 && nc < m) {
+            if (board[nr][nc] == 6) {
+                break;
+            }
+
+            if (board[nr][nc] == 0) {
+                watched[nr][nc] += delta;
+            }
+
+            nr += dr[dir];
+            nc += dc[dir];
         }
-        visit[r][c] = true;
-        moveLeft(r, c - 1);
     }
-    static void moveUp(int r, int c){
-        if(r < 0){
-            return;
-        } else if (board[r][c] == 6){
 
-            return;
-        }
-        visit[r][c] = true;
-        moveUp(r - 1, c);
-    }
-    static void moveDown(int r, int c){
-        if(r >= n){
-            return;
-        } else if (board[r][c] == 6){
+    static int countBlindSpot() {
+        int count = 0;
 
-            return;
-        }
-        visit[r][c] = true;
-        moveDown(r + 1, c);
-    }
-    static boolean[][] copyArray(boolean[][] arr){
-        boolean[][] copy = new boolean[n][m];
-
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < m; j++){
-                copy[i][j] = arr[i][j];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (board[i][j] == 0 && watched[i][j] == 0) {
+                    count++;
+                }
             }
         }
 
-        return copy;
+        return count;
     }
 }
