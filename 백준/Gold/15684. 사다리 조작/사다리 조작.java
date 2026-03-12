@@ -1,36 +1,36 @@
 import java.util.*;
 import java.io.*;
 
-class Main {
-    static int n, m, h;
+class Main{
+    static int n,m,h;
     static boolean[][] board;
     static int answer = 4;
     public static void main(String[] args) throws IOException{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        
         StringTokenizer st;
+        
         st = new StringTokenizer(br.readLine());
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
         h = Integer.parseInt(st.nextToken());
         
-        board = new boolean[h + 1][n + 1];
+        board = new boolean[h+1][n+1];
         
         for(int i = 0; i < m; i++){
             st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken()); 
-            int b = Integer.parseInt(st.nextToken()); 
-            
-            board[a][b] = true;
+            int row = Integer.parseInt(st.nextToken());
+            int col = Integer.parseInt(st.nextToken());
+            board[row][col] = true;;
         }
         
-        dfs(1, 0);
-        if(answer == 4){
+        dfs(1,0);
+        if(answer >= 4){
             bw.write("-1");
         } else {
             bw.write(answer + "");
         }
-        
         bw.flush();
         bw.close();
     }
@@ -52,13 +52,12 @@ class Main {
                 if(board[i][j]){
                     continue;
                 }
-                if(j > 1 && board[i][j-1]){
+                if(j > 1 && board[i][j - 1]){
                     continue;
                 }
-                if(j < n - 1 && board[i][j+1]){
+                if(j < n - 1 && board[i][j + 1]){
                     continue;
                 }
-                
                 board[i][j] = true;
                 dfs(i, count + 1);
                 board[i][j] = false;
@@ -77,12 +76,10 @@ class Main {
                     cur--;
                 }
             }
-            
             if(cur != start){
                 return false;
             }
         }
-        
         return true;
     }
 }
