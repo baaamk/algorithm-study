@@ -17,11 +17,9 @@ class Main{
             }
 
             String num = st.nextToken();
-            String newA = "";
+            
 
-            for(int j = num.length()-1; j >= 0; j--){
-                newA += num.charAt(j);
-            }
+            String newA = new StringBuilder(num).reverse().toString();
 
             arr[i] = Long.parseLong(newA);
         }
