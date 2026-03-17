@@ -1,56 +1,44 @@
 import java.io.*;
 import java.util.*;
 
-class Main{
-    public static void main(String[] args) throws IOException{
+class Main {
+
+    static long ans = 0;
+
+    static void seqSum(List<Integer> v) {
+        while (v.size() > 1) {
+            int n = v.size();
+            ans += (long)v.get(n - 1) * v.get(n - 2);
+            v.remove(n - 1);
+            v.remove(n - 2);
+        }
+        if (v.size() == 1) {
+            ans += v.get(0);
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        int n = Integer.parseInt(br.readLine());
+        int N = Integer.parseInt(br.readLine());
 
-        int[] pos = new int[n];
-        int[] neg = new int[n];
-        int pIdx = 0;
-        int nIdx = 0;
-        int one = 0;
+        List<Integer> seqP = new ArrayList<>();
+        List<Integer> seqN = new ArrayList<>();
 
-        for(int i = 0; i < n; i++){
-            int num = Integer.parseInt(br.readLine());
+        for (int i = 0; i < N; i++) {
+            int t = Integer.parseInt(br.readLine());
 
-            if(num > 1){
-                pos[pIdx++] = num;
-            } else if(num == 1){
-                one++;
-            } else {
-                neg[nIdx++] = num;
-            }
+            if (t == 1) ans++;
+            else if (t > 0) seqP.add(t);
+            else seqN.add(t);
         }
 
-        Arrays.sort(pos, 0, pIdx); // 양수
-        Arrays.sort(neg, 0, nIdx); // 음수
+        Collections.sort(seqP); // 오름차순
+        Collections.sort(seqN, Collections.reverseOrder()); // 내림차순
 
-        int ans = 0;
+        seqSum(seqP);
+        seqSum(seqN);
 
-        // 양수 (큰거부터)
-        int i = pIdx - 1;
-        while(i > 0){
-            ans += pos[i] * pos[i - 1];
-            i -= 2;
-        }
-        if(i == 0) ans += pos[0];
-
-        // 음수 (작은거부터)
-        int j = 0;
-        while(j < nIdx - 1){
-            ans += neg[j] * neg[j + 1];
-            j += 2;
-        }
-        if(j == nIdx - 1) ans += neg[j];
-
-        ans += one;
-
-        bw.write(ans + "");
-        bw.flush();
-        bw.close();
+        System.out.println(ans);
     }
 }
