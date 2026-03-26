@@ -1,60 +1,47 @@
 import java.util.*;
 
 class Solution {
-
-    Set<Integer> set = new HashSet<>();
-
+    static Set<Integer> set = new HashSet<>();
+    static boolean[] visited;
     public int solution(String numbers) {
-
-        int[] number = Arrays.stream(numbers.split(""))
-                             .mapToInt(Integer::parseInt)
-                             .toArray();
-
-        boolean[] visited = new boolean[number.length];
-
-        dfs(number, visited, 0);
-
         int answer = 0;
-
-        for (int x : set) {
-            if (isPrime(x)) {
+        int n = numbers.length();
+        visited = new boolean[n];
+        
+        dfs(numbers,"");
+        
+        for(int num : set){
+            if(isPrime(num)){
                 answer++;
             }
         }
-
+        //만들 수 있는 모든 숫자 확인.
         return answer;
     }
-
-    private void dfs(int[] number, boolean[] visited, int current) {
-
-        if (current != 0) {
-            set.add(current);
-        }
-
-        for (int i = 0; i < number.length; i++) {
-            if (!visited[i]) {
-
-                visited[i] = true;
-
-                dfs(number, visited, current * 10 + number[i]);
-
-                visited[i] = false;
-            }
-        }
-    }
-
-    public boolean isPrime(int n) {
-
-        if (n < 2) {
+    
+    
+    public static boolean isPrime(int number){
+        if(number < 2){
             return false;
         }
-
-        for (int i = 2; i * i <= n; i++) {
-            if (n % i == 0) {
+        for(int i = 2; i * i <= number; i++){
+            if (number % i == 0){
                 return false;
             }
         }
-
         return true;
+    }
+    
+    public static void dfs(String numbers, String result){
+        if(!result.equals("")){
+            set.add(Integer.parseInt(result));
+        }
+        for(int i = 0; i < numbers.length(); i++){
+            if(!visited[i]){
+                visited[i] = true;
+                dfs(numbers, result + numbers.charAt(i));
+                visited[i] = false;
+            }
+        }
     }
 }
