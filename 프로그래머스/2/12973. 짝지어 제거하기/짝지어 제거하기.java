@@ -1,26 +1,23 @@
 import java.util.*;
 
-class Solution
-{
-    public int solution(String s)
-    {
-        
-        
-        Deque<Character> stack = new ArrayDeque<>();
-        
+class Solution {
+    public int solution(String s) {
+        int answer = 0;
+        Deque<Character> dq = new ArrayDeque<>();
         for(int i = 0; i < s.length(); i++){
-            if(!stack.isEmpty() && stack.peek() == s.charAt(i)){
-                stack.pop();
+            if(!dq.isEmpty() && dq.peekLast() == s.charAt(i)){
+                dq.pollLast();
             } else {
-                stack.push(s.charAt(i));
+                dq.add(s.charAt(i));
             }
         }
         
-        if(stack.isEmpty()){
-            return 1;
-        } else {
-            return 0;
+        if(dq.size() != 0){
+            return answer;
         }
+        
+    
 
+        return 1;
     }
 }
