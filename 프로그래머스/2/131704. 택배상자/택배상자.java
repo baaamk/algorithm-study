@@ -2,32 +2,31 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] order) {
-        Deque<Integer> deque = new ArrayDeque<>();
         int answer = 0;
-        int box = 1;
+        
+        Deque<Integer> con = new ArrayDeque<>(); //1번부터 상자 내릴 수 있음.
+        Deque<Integer> temp = new ArrayDeque<>(); //임시로 넣는다. 스택으로.
+        
+        for(int i = 1; i <= order.length; i++){
+            con.add(i);
+        }
         
         for(int i = 0; i < order.length; i++){
             int target = order[i];
-            
-            while (box <= order.length && box < target){
-                deque.push(box);
-                box++;
+            while(!con.isEmpty() && con.peek() < target){
+                temp.push(con.pop());
             }
-            
-            if(box == target){
+            if(!con.isEmpty() && con.peek() == target){
+                con.pop();
                 answer++;
-                box++;
-            } else if(!deque.isEmpty() && deque.peek() == target){
-                deque.pop();
+            } else if(!temp.isEmpty() && temp.peek() == target){
+                temp.pop();
                 answer++;
             } else {
                 break;
             }
             
         }
-        
-        
-        
         return answer;
     }
 }
